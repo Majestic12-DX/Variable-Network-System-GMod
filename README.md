@@ -92,6 +92,8 @@ VAR_NET_SYS.DebugEnabled  = true   -- enables DEBUG/DEV logs (also gated by `dev
   `VAR_NET_SYS:SendNetworkVariablesFullUpdate(ply)` yourself.
 - **Variables per entity limit is 128.**
   This was done for less packet size while still providing large limit. If this bothers you, sorry, you may be doing something wrong
+- **Entities outside of PVS and non-networked can stall tables**
+  Before committing the replicated table, the client ensures the validity of all entities (if there are any) in table and its sub-tables. An entity that has never been replicated to client/dropped by fullupdate may stall the whole table of valid entities for the time it is not replicated on the client. If this bothers you, open an issue. This might take some time but should be resolved in my free time
 
 ## A note on globals
 
@@ -122,5 +124,6 @@ load order.
 - [ ] Direct function for initializing "global" networked variables
 - [ ] Delta data cleanup on player disconnect
 - [ ] Automatic networking for mutable data types
+- [ ] Non-blocking entities in table verification
 - [ ] Optimize clear-data packets
 - [ ] Client-requested value synchronization
