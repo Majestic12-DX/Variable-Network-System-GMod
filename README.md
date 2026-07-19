@@ -126,4 +126,5 @@ load order.
 - [ ] Automatic networking for mutable data types
 - [ ] Non-blocking entities in table verification
 - [ ] Optimize clear-data packets
+- [ ] Optimize mutable networking updates for less traffic (table) and GC pressure
 - [ ] Client-requested value synchronization
