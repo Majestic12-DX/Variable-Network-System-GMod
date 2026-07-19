@@ -89,10 +89,10 @@ VAR_NET_SYS.DebugEnabled  = true   -- enables DEBUG/DEV logs (also gated by `dev
   `ent:Network<Name>()`
 - **`shareWithFunc` is only re-evaluated on set / owner change / full update.**
   After any entity-related event that changes who should see a variable, call
-  `VAR_NET_SYS:SendNetworkVariableUpdate(ent, varId)` or `VAR_NET_SYS:FullNetworkEntityNetworkData(ent)` yourself.
+  `ent:Network<Name>()` or `VAR_NET_SYS:FullNetworkEntityNetworkData(ent)` (for all variables to re-network) yourself.
 - **Variables per entity limit is 128.**
   This was done for less packet size while still providing large limit. If this bothers you, sorry, you may be doing something wrong
-- **Entities outside of PVS and non-networked can stall tables**
+- **Entities outside of PVS and non-networked can stall tables.**
   Before committing the replicated table, the client ensures the validity of all entities (if there are any) in table and its sub-tables. An entity that has never been replicated to client/dropped by fullupdate may stall the whole table of valid entities for the time it is not replicated on the client. If this bothers you, open an issue. This might take some time but should be resolved in my free time
 
 ## A note on globals
