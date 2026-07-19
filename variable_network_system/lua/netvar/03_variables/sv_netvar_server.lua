@@ -66,10 +66,20 @@ function VAR_NET_SYS:_AddNetworkVariableDataToEntity(ent, varType, varName, defa
 	if ent._VarNetSysSetup then return end
 	ent._VarNetSysSetup = true
 
-	local ownerChangedBase = ent.OwnerChanged
-	ent.OwnerChanged = function(mySelf)
-		if ownerChangedBase then ownerChangedBase(mySelf) end
-		VAR_NET_SYS:FullNetworkEntityNetworkData(mySelf)
+	-- Prefer OwnerChanged if the entity already has it (SENTs), else wrap SetOwner.
+	-- Both network AFTER the base runs, so the owner is up to date when we re-send.
+	if ent.OwnerChanged then
+		local ownerChangedBase = ent.OwnerChanged
+		ent.OwnerChanged = function(mySelf)
+			ownerChangedBase(mySelf)
+			VAR_NET_SYS:FullNetworkEntityNetworkData(mySelf)
+		end
+	else
+		local setOwnerBase = ent.SetOwner
+		ent.SetOwner = function(mySelf, newOwner)
+			setOwnerBase(mySelf, newOwner)
+			VAR_NET_SYS:FullNetworkEntityNetworkData(mySelf)
+		end
 	end
 end
 

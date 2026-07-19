@@ -132,12 +132,54 @@ function VNS_Test_Table_Entities()
 	end)
 end
 
+-- Registers a PRIVATE "VNSWeaponTag" var (default string) on weapon_rpg AND
+-- tfa_csgo_ak47, both realms. Private = only the current owner receives it.
+-- weapon_rpg is a C++ engine weapon (core re-networks it on WeaponEquip);
+-- tfa_csgo_ak47 is a Lua SWEP (re-networked by the OwnerChanged wrap). Either way,
+-- dropping the weapon and grabbing it as another player sends the value to them.
+local VNS_TAGGED_WEAPONS = {
+	["weapon_rpg"]    = true,
+	["tfa_csgo_ak47"] = true,
+}
+local VNS_WEAPON_TAG_DEFAULT = "this is supposed to be networked"
+
+local VNS_WEAPON_VARS_INSTALLED = false
+local function InstallWeaponPrivateVars()
+	if VNS_WEAPON_VARS_INSTALLED then return end
+	VNS_WEAPON_VARS_INSTALLED = true
+
+	-- register the var on both realms whenever a tagged weapon is created
+	hook.Add("OnEntityCreated", "VNS_WeaponTag_PrivateVar", function(ent)
+		timer.Simple(0, function()
+			if not IsValid(ent) or not VNS_TAGGED_WEAPONS[ent:GetClass()] then return end
+			if not ent.GetVNSWeaponTag then ent:PrivateNetworkVariable("String", "VNSWeaponTag", VNS_WEAPON_TAG_DEFAULT) end
+		end)
+	end)
+
+	-- clients: register the same var (same default) + print on change
+	BroadcastLua([[
+		local TAGGED = { ["weapon_rpg"] = true, ["tfa_csgo_ak47"] = true }
+		hook.Add("OnEntityCreated", "VNS_WeaponTag_PrivateVar", function(ent)
+			timer.Simple(0, function()
+				if not IsValid(ent) or not TAGGED[ent:GetClass()] then return end
+				if ent.GetVNSWeaponTag then return end
+				ent:PrivateNetworkVariable("String", "VNSWeaponTag", "this is supposed to be networked")
+				ent.OnVNSWeaponTagChange = function(_, old, new)
+					print("[VNS CL] VNSWeaponTag on " .. tostring(ent) .. " -> " .. tostring(new))
+				end
+			end)
+		end)
+	]])
+end
+
 -- Same idea, bots only: give each bot rpg + pistol + 357, publish their weapon
--- table, then push a full update to every human client (no sv_cheats gating).
+-- table, tag their RPG with a private var and make them select it.
 function VNS_Test_Bots_Weapons()
 	-- launch a Source engine fullupdate on every client (forces a fresh entity snapshot)
 	BroadcastLua([[ RunConsoleCommand("cl_fullupdate") ]])
-	
+
+	InstallWeaponPrivateVars()
+
 	local bots = player.GetBots()
 	if #bots == 0 then print("[VNS] no bots present - spawn one with the 'bot' command") return end
 
@@ -145,6 +187,7 @@ function VNS_Test_Bots_Weapons()
 		bot:Give("weapon_rpg")
 		bot:Give("weapon_pistol")
 		bot:Give("weapon_357")
+		bot:Give("tfa_csgo_ak47")
 
 		if not bot.GetVNSBotWeapons then
 			bot:PublicNetworkVariable("Table", "VNSBotWeapons")
@@ -165,10 +208,15 @@ function VNS_Test_Bots_Weapons()
 	timer.Simple(0.1, function()
 		for _, bot in ipairs(bots) do
 			if not IsValid(bot) then continue end
+
 			bot:SetVNSBotWeapons({ [bot] = "bot", weapons = bot:GetWeapons() })
+
+			-- RPG + AK carry the default "VNSWeaponTag" value; leave it unset so the
+			-- default is what replicates on pickup
+			bot:SelectWeapon("weapon_rpg")
 		end
 
-		print(("[VNS] armed %d bot(s), broadcast source fullupdate to all clients"):format(#bots))
+		print(("[VNS] armed %d bot(s), tagged RPG + AK, selected RPG"):format(#bots))
 	end)
 end
 
