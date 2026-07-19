@@ -88,8 +88,8 @@ VAR_NET_SYS.DebugEnabled  = true   -- enables DEBUG/DEV logs (also gated by `dev
   If a mutable object has been changed, but it's reference remains the same you may need to manually trigger networking.
   `ent:Network<Name>()`
 - **`shareWithFunc` is only re-evaluated on set / owner change / full update.**
-  After any event that changes who should see a variable, call
-  `VAR_NET_SYS:SendNetworkVariablesFullUpdate(ply)` yourself.
+  After any entity-related event that changes who should see a variable, call
+  `VAR_NET_SYS:SendNetworkVariableUpdate(ent, varId)` or `VAR_NET_SYS:FullNetworkEntityNetworkData(ent)` yourself.
 - **Variables per entity limit is 128.**
   This was done for less packet size while still providing large limit. If this bothers you, sorry, you may be doing something wrong
 - **Entities outside of PVS and non-networked can stall tables**
