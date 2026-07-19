@@ -84,13 +84,13 @@ VAR_NET_SYS.DebugEnabled  = true   -- enables DEBUG/DEV logs (also gated by `dev
 
 - **The delta cache is not cleared on player disconnect** (`sv_sending.lua`,
   `LAST_DATA_SENT_TO_PLAYER`). A slow leak on very-long-uptime servers. Open an issue if this matters to you.
-- **Mutable variables require manual networking and have no delta-compression** 
+- **Mutable variables require manual networking and have no delta-compression.** 
   If a mutable object has been changed, but it's reference remains the same you may need to manually trigger networking.
   `ent:Network<Name>()`
 - **`shareWithFunc` is only re-evaluated on set / owner change / full update.**
   After any event that changes who should see a variable, call
   `VAR_NET_SYS:SendNetworkVariablesFullUpdate(ply)` yourself.
-- **Variables per entity limit is 128**
+- **Variables per entity limit is 128.**
   This was done for less packet size while still providing large limit. If this bothers you, sorry, you may be doing something wrong
 
 ## A note on globals
