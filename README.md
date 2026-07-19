@@ -59,7 +59,7 @@ Registering auto-generates methods on the entity:
 | `ent:Network<Name>()` | server | re-send current value without changing it |
 | `ent.On<Name>Change(ent, old, new)` | either | define this to react to changes |
 
-Push all of an entity's variables to a player (e.g. if previously-hidden variables should now be visible after some major event):
+Push all entity variables to a player (e.g. if previously-hidden variables should now be visible after some major event):
 
 ```lua
 VAR_NET_SYS:SendNetworkVariablesFullUpdate(ply)
