@@ -25,7 +25,7 @@ the value is applied, so you never get a dangling entity.
 
 ## Install
 
-Drop the `network_variables_standalone` folder into
+Drop the `variable_network_system` folder into
 `GarrysMod/garrysmod/addons/`
 
 ## Quick start
